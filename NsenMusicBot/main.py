@@ -5,7 +5,7 @@ from discord.ext import commands
 if not discord.opus.is_loaded():
 	discord.opus.load_opus("opus")
 
-from NsenMusicBot.client import Music
+from NsenMusicBot.client import Music, Nsen
 from NsenMusicBot.configparser import ConfigParser
 
 class Bot:
@@ -18,6 +18,9 @@ class Bot:
 				description="Nsen Music Bot for Discord"
 		)
 		self.bot.add_cog(Music(self.bot))
+
+		self.nsen = Nsen(self.config["niconico"]["default"])
+		self.nsen.login(self.config["niconico"]["email"], self.config["niconico"]["password"])
 
 		@self.bot.event
 		async def on_ready():

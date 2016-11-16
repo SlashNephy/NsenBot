@@ -4,5 +4,10 @@
     "token": "PUT HERE Your Bot Token",
     "channel": "PUT HERE Default Voice Channel ID (int)",
     "prefix": "%"
+  },
+  "niconico": {
+    "email": "PUT HERE Your NicoNico Account's Email",
+    "password": "PUT HERE Your NicoNico Account's Password",
+    "default": "toho"
   }
 }
