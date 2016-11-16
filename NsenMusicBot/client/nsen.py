@@ -75,16 +75,18 @@ class Nsen:
 		self.flv = {x.split("=")[0]: x.split("=")[1] for x in self.br.state.response.text.split("&")}
 		return self.flv
 
-	def generateCommand(self):
+	def generateCommand(self, path=None):
 		self.command = ["rtmpdump", "-l 2", "-r {}".format(decodeURIString(self.flv["url"]).split("?")[0]),
 			"-t {}".format(decodeURIString(self.flv["url"]).split("?")[0]),
 			"-a {}".format("/".join(decodeURIString(self.flv["url"]).split("?")[0].split("/")[3:])),
 			"-y {}".format(decodeURIString(self.flv["url"]).split("?m=")[1]),
 			"-s http://live.nicovideo.jp/nicoliveplayer.swf?160530135720",
-			"-p http://live.nicovideo.jp/watch/nsen/{}".format(self.name), "-f \"WIN 23,0,0,207\"",
+			"-p http://live.nicovideo.jp/watch/nsen/{}".format(self.name),
+			"-f \"WIN 23,0,0,207\"",
 			"-C S:{}".format(decodeURIString(self.flv["fmst"]).split(":")[1]),
 			"-C S:{}".format(decodeURIString(self.flv["fmst"]).split(":")[0]),
-			"-C S:{}".format(decodeURIString(self.flv["url"]).split("?m=")[1]), "-o {}.flv".format(self.name)]
+			"-C S:{}".format(decodeURIString(self.flv["url"]).split("?m=")[1]),
+			"-o {}".format(path if path else "{}.flv".format(self.name))]
 		return self.command
 
 	def executeRecordCommand(self):
