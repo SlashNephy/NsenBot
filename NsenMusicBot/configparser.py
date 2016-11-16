@@ -7,7 +7,7 @@ from NsenMusicBot.exceptions import NotFoundConfigFile, InvalidSyntaxConfigFile
 
 
 class ConfigParser:
-	configPath = "{}/{}".format("/".join(os.path.dirname(__file__).split("/")[0:-1]), configFilename)
+	configPath = "{}".format(configFilename)
 
 	def __init__(self):
 		self.config = None
