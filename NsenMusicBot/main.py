@@ -26,5 +26,14 @@ class Bot:
 		async def on_ready():
 			print("Logged in as:\n{0} (ID: {0.id})".format(self.bot.user))
 
+	def playNsen(self):
+		while True:
+			self.nsen.getPlayerStatus()
+			self.nsen.getCKey()
+			self.nsen.getFLV()
+			path = None
+			self.nsen.generateCommand(path=path)
+			self.nsen.executeRecordCommand()
+
 	def run(self):
 		self.bot.run(self.config["bot"]["token"])
