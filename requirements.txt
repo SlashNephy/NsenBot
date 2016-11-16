@@ -1,0 +1,5 @@
+robobrowser
+xmltodict
+lxml
+discord[voice]
+asyncio
