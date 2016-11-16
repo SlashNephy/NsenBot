@@ -13,16 +13,17 @@ class Nsen:
 	userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2918.0 Safari/537.36"
 	nsenSet = ["vocaloid", "toho", "nicoindies", "sing", "play", "pv", "hotaru"]
 
+	baseUrl = "http://live.nicovideo.jp/watch/nsen/"
+	flashUrl = "http://live.nicovideo.jp/nicoliveplayer.swf?160530135720"
+	flashVer = "WIN 23,0,0,207"
+
 	def __init__(self, name):
 		if name not in self.nsenSet:
 			raise Exception("Unsupported Nsen Channel ({})".format(name))
 		self.name = name
 
 		self.liveData = {}
-		self.liveTitle = None
 		self.liveId = None
-		self.liveThumb = None
-		self.liveDesc = None
 		self.ckey = None
 		self.flv = {}
 
@@ -54,9 +55,6 @@ class Nsen:
 		t = json.loads(json.dumps(xmltodict.parse(self.br.state.response.text)))["getplayerstatus"]
 
 		self.liveData = t
-		self.liveTitle = t["stream"]["title"]
-		self.liveThumb = t["stream"]["picture_url"]
-		self.liveDesc = t["stream"]["description"]
 
 		self.videoId = t["stream"]["contents_list"]["contents"]["#text"].replace("smile:", "")
 
@@ -76,17 +74,16 @@ class Nsen:
 		return self.flv
 
 	def generateCommand(self, path=None):
-		self.command = ["rtmpdump", "-l 2", "-r {}".format(decodeURIString(self.flv["url"]).split("?")[0]),
-			"-t {}".format(decodeURIString(self.flv["url"]).split("?")[0]),
-			"-a {}".format("/".join(decodeURIString(self.flv["url"]).split("?")[0].split("/")[3:])),
-			"-y {}".format(decodeURIString(self.flv["url"]).split("?m=")[1]),
-			"-s http://live.nicovideo.jp/nicoliveplayer.swf?160530135720",
-			"-p http://live.nicovideo.jp/watch/nsen/{}".format(self.name),
-			"-f \"WIN 23,0,0,207\"",
-			"-C S:{}".format(decodeURIString(self.flv["fmst"]).split(":")[1]),
-			"-C S:{}".format(decodeURIString(self.flv["fmst"]).split(":")[0]),
-			"-C S:{}".format(decodeURIString(self.flv["url"]).split("?m=")[1]),
-			"-o {}".format(path if path else "{}.flv".format(self.name))]
+		self.command = "rtmpdump -l 2 -r {url} -t {url} -a {app} -y {playpath} -s {flashUrl} -p {pageUrl} -f {flashVer} -C S:{fmst[1]} -C S:{fmst[0]} -C S:{playpath} -o {path}".format(
+			url=decodeURIString(self.flv["url"]).split("?")[0],
+			app="/".join(decodeURIString(self.flv["url"]).split("?")[0].split("/")[3:]),
+			flashUrl=self.flashUrl,
+			pageUrl="{}{}".format(self.baseUrl, self.name),
+			flashVer="\"{}\"".format(self.flashVer),
+			playpath=decodeURIString(self.flv["url"]).split("?m=")[1],
+			fmst=decodeURIString(self.flv["fmst"]).split(":"),
+			path=path if path else "{}.flv".format(self.name)
+		)
 		return self.command
 
 	def executeRecordCommand(self):
