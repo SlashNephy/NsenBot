@@ -1,8 +1,10 @@
 {
   "locale": "en",
+  "tmpDir": "/path/to/tmp",
   "bot": {
     "token": "PUT HERE Your Bot Token",
-    "channel": "PUT HERE Default Voice Channel ID (int)",
+    "channel": "PUT HERE Default Voice Channel ID",
+    "textChannel": "PUT HERE Text Channel ID",
     "prefix": "%"
   },
   "niconico": {
