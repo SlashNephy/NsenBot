@@ -1,7 +1,7 @@
 # coding=utf-8
 import subprocess
 import urllib.parse
-from logging import Logger, Formatter, getLogger, captureWarnings, INFO, DEBUG
+from logging import Logger, Formatter, getLogger, INFO, DEBUG
 from logging.handlers import RotatingFileHandler
 from typing import Tuple
 
@@ -16,7 +16,6 @@ def executeCommand(args: str) -> Tuple[str]:
 
 def getCustomLogger(logPath: str, debug: bool=False) -> Logger:
 	logger = getLogger()
-	captureWarnings(capture=True)
 
 	handler = RotatingFileHandler(logPath, maxBytes=2 ** 20, backupCount=10000, encoding="utf-8")
 	formatter = Formatter(
