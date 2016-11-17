@@ -1,6 +1,7 @@
 {
-  "locale": "en",
   "tmpDir": "/path/to/tmp",
+  "logDir": "/path/to/logs",
+  "debug": false,
   "bot": {
     "token": "PUT HERE Your Bot Token",
     "channel": "PUT HERE Default Voice Channel ID",
