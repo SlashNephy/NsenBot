@@ -1,7 +1,7 @@
 # coding=utf-8
 from logging import getLogger
 
-from NsenMusicBot.const import configFilename
+from .const import configFilename
 
 logger = getLogger()
 

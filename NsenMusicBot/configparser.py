@@ -2,28 +2,28 @@
 import json
 import os
 
-from NsenMusicBot.const import configFilename
-from NsenMusicBot.exceptions import NotFoundConfigFile, InvalidSyntaxConfigFile
+from .const import configFilename
+from .exceptions import NotFoundConfigFile, InvalidSyntaxConfigFile
 
 
 class ConfigParser:
 	configPath = "{}".format(configFilename)
 
-	def __init__(self):
+	def __init__(self) -> None:
 		self.config = None
 		self.load()
 
-	def check(self):
+	def check(self) -> None:
 		if not os.path.isfile(self.configPath):
 			raise NotFoundConfigFile
 
 		return True
 
 	@property
-	def isValid(self):
+	def isValid(self) -> bool:
 		return self.check()
 
-	def load(self):
+	def load(self) -> dict:
 		if not self.isValid:
 			return
 
@@ -32,3 +32,4 @@ class ConfigParser:
 				self.config = json.load(f)
 			except:
 				raise InvalidSyntaxConfigFile
+		return self.config
