@@ -204,7 +204,7 @@ class Bot:
 					continue
 				videoId = self.nsen.getVideoID(data)
 				self.logger.debug(videoId)
-				if videoId == previousId:
+				if videoId == previousId and self.nsen.channelName != "hotaru":
 					time.sleep(10)
 					continue
 				if not videoId:
