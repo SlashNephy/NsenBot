@@ -6,7 +6,10 @@
     "token": "PUT HERE Your Bot Token",
     "channel": "PUT HERE Default Voice Channel ID",
     "textChannel": "PUT HERE Text Channel ID",
-    "prefix": "%"
+    "prefix": "%",
+    "needVotes": 3,
+    "volume": 0.03,
+    "cleanUpInterval": 3600
   },
   "niconico": {
     "email": "PUT HERE Your NicoNico Account's Email",
