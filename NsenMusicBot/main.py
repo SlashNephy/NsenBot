@@ -197,16 +197,28 @@ class Bot:
 		while True:
 			try:
 				data = self.nsen.getPlayerStatus()
+				self.logger.debug(data)
 				if "error" in data:
 					self.nsen.setChannel(self.nsenChannel)
 					time.sleep(10)
 					continue
 				videoId = self.nsen.getVideoID(data)
+				self.logger.debug(videoId)
 				if videoId == previousId:
 					time.sleep(10)
 					continue
+				if not videoId:
+					self.nsen.setChannel(self.nsenChannel)
+					time.sleep(10)
+					continue
 				ckey = self.nsen.getCKey(videoId)
+				self.logger.debug(ckey)
 				data2 = self.nsen.getFLV(videoId, ckey)
+				self.logger.debug(data2)
+				if "url" not in data2:
+					self.nsen.setChannel(self.nsenChannel)
+					time.sleep(10)
+					continue
 
 				duration = int(data["stream"]["contents_list"]["contents"]["@duration"])
 				obj = {
