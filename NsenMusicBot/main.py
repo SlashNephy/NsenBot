@@ -209,7 +209,7 @@ class Bot:
 
 				duration = int(data["stream"]["contents_list"]["contents"]["@duration"])
 				obj = {
-					"path": "{}/{}_{}.flv".format(self.tmpDir, self.nsen.channelId, videoId),
+					"path": "{}/{}_{}.flv".format(self.tmpDir, self.nsen.channelName, videoId),
 					"text": "Now Playing: **{title}** ({time}) - {channelName}\nhttp://www.nicovideo.jp/watch/{id}".format(
 						title=data["stream"]["contents_list"]["contents"]["@title"],
 						time="{0[0]}:{0[1]:02d}".format(divmod(duration, 60)),
