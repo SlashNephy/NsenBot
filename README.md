@@ -1,4 +1,6 @@
-# NsenBot
+<p align="center"><img src="https://raw.githubusercontent.com/SlashNephy/NsenBot/master/logo.png" width="40px"></p>
+<h1 align="center">NsenBot</h1>
+
 NsenBotは [Nsen](http://ex.nicovideo.jp/nsenexp/) の放送をDiscordのボイスチャンネルで再生するBotです。
 <br>ニコ動のログイン情報とDiscordの`Bot Token`を設定ファイルに記載するだけで使用できます。
 
