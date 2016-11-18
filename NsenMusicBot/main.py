@@ -127,6 +127,7 @@ class Bot:
 				helps = [
 					["channel [str]", "Nsenチャンネルを [str] に変更します。変更可能なチャンネルは {} です。".format(", ".join(["{} ({})".format(x["name"], ", ".join(x["alias"])) for x in self.nsen.channelNames]))],
 					["queue", "現在の再生キューを返します。"],
+					["skip", "現在の曲をスキップする投票を始めます。"],
 					["volume", "現在の音量を返します。"],
 					["volume [int]", "音量を [int]% に変更します。"],
 					["volume [+ または -][int]", "音量を [int]% だけ増加または減少させます。"]
