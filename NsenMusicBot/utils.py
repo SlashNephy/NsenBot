@@ -6,6 +6,9 @@ from logging.handlers import RotatingFileHandler
 from typing import Tuple
 
 
+def encodeURIString(s: str) -> str:
+	return urllib.parse.quote(s)
+
 def decodeURIString(s: str) -> str:
 	return urllib.parse.unquote(s)
 

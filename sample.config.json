@@ -1,6 +1,7 @@
 {
   "tmpDir": "/path/to/tmp",
   "logDir": "/path/to/logs",
+  "workDir": "/path/to/work",
   "debug": false,
   "bot": {
     "token": "PUT HERE Your Bot Token",

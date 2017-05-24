@@ -1,12 +1,14 @@
 # coding=utf-8
 import asyncio
 import datetime
-import re
+import html
 import os
+import re
 import threading
 import time
 
 import discord
+import requests
 
 from .configparser import ConfigParser
 from .nsen import Nsen
@@ -28,6 +30,7 @@ class Bot:
 		self.client = discord.Client()
 		self.voiceClient = None
 		self.player = None
+		self._playing = True
 		self._volume = self.config["bot"]["volume"]
 		self.nsenChannel = self.config["niconico"]["default"]
 		self.voiceChannel = discord.Object(id=self.config["bot"]["channel"])
@@ -44,17 +47,35 @@ class Bot:
 		self.nsen = Nsen()
 		self.nsen.login(self.config["niconico"]["email"], self.config["niconico"]["password"])
 		self.nsen.setChannel(self.nsenChannel)
+		self.nsenIcon = "{}/nsen.png".format(self.config["tmpDir"])
 
 		self.tmpDir = self.config["tmpDir"]
 		self.cleanUpInterval = self.config["bot"]["cleanUpInterval"]
 		self.cleanUpThread = threading.Thread(name="Cleaning Up Tmp Dir", target=self.cleanUpTmpDir)
+		self.reloginThread = threading.Thread(name="Re-Logging In Dir", target=self.loginNsen)
 
 		@self.client.event
 		async def on_ready():
 			self.logger.info("Logged in as: {0} (ID: {0.id})".format(self.client.user))
 
+			if "nsen" not in [x.name for x in self.client.get_all_emojis()]:
+				await self.client.create_custom_emoji(self.client.servers[0], "nsen", open(self.nsenIcon, "rb").read())
+
 			self.voiceClient = await self.client.join_voice_channel(self.voiceChannel)
 			await self.loopTrack()
+
+		@self.client.event
+		async def on_voice_state_update(before, after):
+			if before.voice.voice_channel == after.voice.voice_channel:
+				return
+			if self.voiceChannel == after.voice.voice_channel:
+				await self.client.send_message(self.textChannel, "{}さん `Nsen`チャンネルへようこそ\n`/help`コマンドでヘルプを表示できます。".format(after.mention))
+
+				if len(after.voice.voice_channel.voice_members) == 1:
+					self.playing = True
+
+			elif self.voiceChannel == before.voice.voice_channel:
+				self.playing = False
 
 		@self.client.event
 		async def on_message(message):
@@ -78,7 +99,7 @@ class Bot:
 					self.musicQueue = []
 					self.nsen.setChannel(self.nsenChannel)
 					self.player.stop()
-					await self.client.send_message(self.textChannel, "{} 再生キューを初期化し、チャンネルを **{}** に変更します。".format(message.author.mention, self.nsenChannel))
+					await self.client.send_message(self.textChannel, "{} 再生キューを初期化し、チャンネルを **{}** に変更します。".format(message.author.mention, [x["title"] for x in self.nsen.channelNames if x["name"] == self.nsenChannel][0]))
 					return True
 
 			elif message.content.startswith(self.prefix + "queue"):
@@ -154,6 +175,17 @@ class Bot:
 			if self.player.is_playing():
 				self.player.volume = self._volume
 
+	@property
+	def playing(self):
+		return self._volume
+
+	@playing.setter
+	def playing(self, value):
+		self._playing = value
+		if self.player:
+			if not value and self.player.is_playing():
+				self.player.stop()
+
 	async def loopTrack(self):
 		while self.running:
 			await self.goNextTrack()
@@ -162,6 +194,10 @@ class Bot:
 		while True:
 			track = await self.getTrack()
 			try:
+				if not self.playing:
+					await asyncio.sleep(10)
+					continue
+
 				await self.client.send_typing(self.textChannel)
 
 				self.player = self.voiceClient.create_ffmpeg_player(track["path"], use_avconv=True)
@@ -223,13 +259,13 @@ class Bot:
 				duration = int(data["stream"]["contents_list"]["contents"]["@duration"])
 				obj = {
 					"path": "{}/{}_{}.flv".format(self.tmpDir, self.nsen.channelName, videoId),
-					"text": "Now Playing: **{title}** ({time}) - {channelName}\nhttp://www.nicovideo.jp/watch/{id}".format(
-						title=data["stream"]["contents_list"]["contents"]["@title"],
+					"text": ":nsen: Now Playing: **{title}** ({time}) - {channelName}\nhttp://www.nicovideo.jp/watch/{id}".format(
+						title=html.unescape(data["stream"]["contents_list"]["contents"]["@title"]),
 						time="{0[0]}:{0[1]:02d}".format(divmod(duration, 60)),
 						channelName=data["stream"]["title"],
 						id=videoId
 					),
-					"title": data["stream"]["contents_list"]["contents"]["@title"]
+					"title": html.unescape(data["stream"]["contents_list"]["contents"]["@title"])
 				}
 				previousId = videoId
 
@@ -241,6 +277,8 @@ class Bot:
 			except:
 				self.logger.exception("Error occured while syncNsen")
 				time.sleep(10)
+			else:
+				time.sleep(30)
 
 	def cleanUpTmpDir(self):
 		while True:
@@ -251,9 +289,22 @@ class Bot:
 				if path != self.currentVideoPath:
 					os.remove(path)
 
+	def loginNsen(self):
+		while True:
+			time.sleep(60 * 60 * 2)
+			try:
+				self.nsen.login(self.config["niconico"]["email"], self.config["niconico"]["password"])
+			except:
+				pass
+
 	def run(self):
 		self.running = True
 
+		if not os.path.isfile(self.nsenIcon):
+			with open(self.nsenIcon, "wb") as f:
+				f.write(requests.get("http://live.nicovideo.jp/img/nsen/waitlist_icon_nsen.png").content)
+
 		self.nsenThread.start()
 		self.cleanUpThread.start()
+		self.reloginThread.start()
 		self.client.run(self.config["bot"]["token"])
